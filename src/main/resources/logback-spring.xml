@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}spring.log}"/>
+
+    <!-- Local Host logging config -->
+    <!-- Logs are written to console only -->
+    <springProfile name="!dev, !test, !prod">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <logger name="io.gearstack" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+
+        <logger name="io.gearstack.test" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+
+        <logger name="org.springframework.data" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+
+        <logger name="org.springframework.web" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+
+        <root level="ERROR">
+            <appender-ref ref="CONSOLE" />
+        </root>
+
+        <root level="error">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+</configuration>

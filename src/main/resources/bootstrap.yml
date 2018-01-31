@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: gearstack
+  profiles:
+    active: default
+  cloud:
+    config:
+      server:
+        bootstrap: true
+        encrypt:
+          enabled: false
+        git:
+          uri: ${CONFIG_REPO_URI}
+          username: ${GIT_USER}
+          password: ${GIT_PASS}
