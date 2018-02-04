@@ -1,3 +1,4 @@
+# Spring and Cloud Config Server config
 spring:
   application:
     name: gearstack
@@ -13,3 +14,46 @@ spring:
           uri: ${CONFIG_REPO_URI}
           username: ${GIT_USER}
           password: ${GIT_PASS}
+
+# Global logging properties
+global:
+  log:
+    console:
+      pattern: "%d{yyyy/MMM/dd HH:mm:ss:SSS} %highlight(%-5level) %logger{40} - %msg%n"
+    file:
+      pattern: "%d{yyyy/MMM/dd HH:mm:ss:SSS} %highlight(%-5level) %logger{40} - %msg%n"
+      audit: "gearstack_audit"
+      error: "gearstack_err"
+
+# Local logging properties
+local:
+  log:
+    file:
+      path: "/Users/coreym/Desktop/Projects/gearstack/gearstack_logs"
+      max:
+        size: "20MB"
+        history: 14
+      total:
+        cap: "1GB"
+
+# Development logging properties
+dev:
+  log:
+    file:
+      path: "some/path/on/dev/server"
+      max:
+        size: "10MB"
+        history: 14
+      total:
+        cap: "5GB"
+
+# Production logging properties
+prod:
+  log:
+    file:
+      path: "some/path/on/prod/server"
+      max:
+        size: "10MB"
+        history: 14
+      total:
+        cap: "5GB"

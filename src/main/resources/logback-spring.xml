@@ -1,34 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}spring.log}"/>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <!-- Local Host logging config -->
-    <!-- Logs are written to console only -->
+    <!-- Retrieve global logging props -->
+    <springProperty scope="local" name="consolePattern" source="global.log.console.pattern"/>
+    <springProperty scope="local" name="filePattern" source="global.log.file.pattern"/>
+    <springProperty scope="local" name="auditLog" source="global.log.file.audit"/>
+    <springProperty scope="local" name="errorLog" source="global.log.file.error"/>
+
+    <!-- Retrieve local logging props -->
+    <springProperty scope="local" name="localLogPath" source="local.log.file.path"/>
+    <springProperty scope="local" name="localMaxSize" source="local.log.file.max.size"/>
+    <springProperty scope="local" name="localMaxHistory" source="local.log.file.max.history"/>
+    <springProperty scope="lcoal" name="localTotalCap" source="local.log.file.total.cap"/>
+
+    <!-- Retrieve dev logging props -->
+    <springProperty scope="local" name="devLogPath" source="dev.log.file.path"/>
+    <springProperty scope="local" name="devMaxSize" source="dev.log.file.max.size"/>
+    <springProperty scope="local" name="devMaxHistory" source="dev.log.file.max.history"/>
+    <springProperty scope="lcoal" name="devTotalCap" source="dev.log.file.total.cap"/>
+
+    <!-- Retrieve prod logging props -->
+    <springProperty scope="local" name="prodLogPath" source="prod.log.file.path"/>
+    <springProperty scope="local" name="prodMaxSize" source="prod.log.file.max.size"/>
+    <springProperty scope="local" name="prodMaxHistory" source="prod.log.file.max.history"/>
+    <springProperty scope="lcoal" name="prodTotalCap" source="prod.log.file.total.cap"/>
+
+    <!-- GLOBAL CONSOLE APPENDER -->
+    <appender name="CONSOLE_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>${consolePattern}</Pattern>
+        </layout>
+    </appender>
+
+    <!-- LOCALHOST (default) logging config - console and file -->
     <springProfile name="!dev, !test, !prod">
-        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
-        <logger name="io.gearstack" level="debug" additivity="false">
-            <appender-ref ref="CONSOLE" />
+        <!-- Audit appender -->
+        <appender name="FILE_AUDIT_APPENDER"
+                  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${localLogPath}/audit/${auditLog}.log</file>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <Pattern>${filePattern}</Pattern>
+            </encoder>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${localLogPath}/audit/archived/${auditLog}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${localMaxSize}</maxFileSize>
+                <maxHistory>${localMaxHistory}</maxHistory>
+                <totalSizeCap>${localTotalCap}</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <!-- Error appender -->
+        <appender name="FILE_ERROR_APPENDER"
+                  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${localLogPath}/err/${errorLog}.log</file>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <Pattern>${filePattern}</Pattern>
+            </encoder>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${localLogPath}/err/archived/${errorLog}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${localMaxSize}</maxFileSize>
+                <maxHistory>${localMaxHistory}</maxHistory>
+                <totalSizeCap>${localTotalCap}</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <logger name="org.hibernate" additivity="false">
+            <appender-ref ref="CONSOLE_APPENDER"/>
+            <appender-ref ref="FILE_AUDIT_APPENDER"/>
         </logger>
 
-        <logger name="io.gearstack.test" level="debug" additivity="false">
-            <appender-ref ref="CONSOLE" />
+        <logger name="io.gearstack" additivity="false">
+            <appender-ref ref="CONSOLE_APPENDER"/>
+            <appender-ref ref="FILE_AUDIT_APPENDER"/>
         </logger>
 
-        <logger name="org.springframework.data" level="debug" additivity="false">
-            <appender-ref ref="CONSOLE" />
-        </logger>
-
-        <logger name="org.springframework.web" level="debug" additivity="false">
-            <appender-ref ref="CONSOLE" />
-        </logger>
-
-        <root level="ERROR">
-            <appender-ref ref="CONSOLE" />
+        <root>
+            <appender-ref ref="CONSOLE_APPENDER"/>
+            <appender-ref ref="FILE_ERROR_APPENDER"/>
         </root>
+    </springProfile>
 
-        <root level="error">
-            <appender-ref ref="CONSOLE"/>
+    <!-- DEVELOPMENT PROFILE - file only -->
+    <springProfile name="dev">
+        <!-- Audit appender -->
+        <appender name="FILE_AUDIT_APPENDER"
+                  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${devLogPath}/audit/${auditLog}.log</file>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <Pattern>${filePattern}</Pattern>
+            </encoder>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${devLogPath}/audit/archived/${auditLog}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${devMaxSize}</maxFileSize>
+                <maxHistory>${devMaxHistory}</maxHistory>
+                <totalSizeCap>${devTotalCap}</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <!-- Error appender -->
+        <appender name="FILE_ERROR_APPENDER"
+                  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${devLogPath}/err/${errorLog}.log</file>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <Pattern>${filePattern}</Pattern>
+            </encoder>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${devLogPath}/err/archived/${errorLog}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${devMaxSize}</maxFileSize>
+                <maxHistory>${devMaxHistory}</maxHistory>
+                <totalSizeCap>${devTotalCap}</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+        <logger name="org.hibernate" additivity="false">
+            <appender-ref ref="FILE_AUDIT_APPENDER"/>
+        </logger>
+
+        <logger name="io.gearstack" additivity="false">
+            <appender-ref ref="FILE_AUDIT_APPENDER"/>
+        </logger>
+
+        <root>
+            <appender-ref ref="FILE_ERROR_APPENDER"/>
+        </root>
+    </springProfile>
+
+    <!-- PRODUCTION PROFILE - file only -->
+    <springProfile name="prod">
+        <!-- Audit appender -->
+        <appender name="FILE_AUDIT_APPENDER"
+                  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${prodLogPath}/audit/${auditLog}.log</file>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <Pattern>${filePattern}</Pattern>
+            </encoder>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${prodLogPath}/audit/archived/${auditLog}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${prodMaxSize}</maxFileSize>
+                <maxHistory>${prodMaxHistory}</maxHistory>
+                <totalSizeCap>${prodTotalCap}</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <!-- Error appender -->
+        <appender name="FILE_ERROR_APPENDER"
+                  class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${prodLogPath}/err/${errorLog}.log</file>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <Pattern>${filePattern}</Pattern>
+            </encoder>
+
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${prodLogPath}/err/archived/${errorLog}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${prodMaxSize}</maxFileSize>
+                <maxHistory>${prodMaxHistory}</maxHistory>
+                <totalSizeCap>${prodTotalCap}</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+        <logger name="org.hibernate" additivity="false">
+            <appender-ref ref="FILE_AUDIT_APPENDER"/>
+        </logger>
+
+        <logger name="io.gearstack" additivity="false">
+            <appender-ref ref="FILE_AUDIT_APPENDER"/>
+        </logger>
+
+        <root>
+            <appender-ref ref="FILE_ERROR_APPENDER"/>
+        </root>
+    </springProfile>
+
+    <!-- TEST profile - console only -->
+    <springProfile name="test">
+        <root>
+            <appender-ref ref="CONSOLE_APPENDER"/>
         </root>
     </springProfile>
 </configuration>
