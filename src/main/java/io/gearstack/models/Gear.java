@@ -1,13 +1,10 @@
 package io.gearstack.models;
 
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Check;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,11 +32,11 @@ public class Gear implements Serializable {
     @NaturalId(mutable = true)
     private String name;
 
-    @Column(table = "gear", name = "description", nullable = false)
+    @Column(table = "gear", name = "description")
     private String description;
 
     @OneToOne(optional = false)
-    @JoinColumn(table = "gear", name = "type", referencedColumnName = "name",
+    @JoinColumn(table = "gear", name = "gear_type", referencedColumnName = "amazon_node_id",
                 nullable = false, updatable = false)
     private GearType gearType;
 
@@ -48,17 +45,6 @@ public class Gear implements Serializable {
 
     @Column(table = "gear", name = "amazon_link")
     private String amazonLink;
-
-    @Column(table = "gear", name = "ebay_link")
-    private String ebayLink;
-
-    @Column(table = "gear", name = "price")
-    @Check(constraints = "price >= 0.00")
-    private BigDecimal price;
-
-    @Column(table = "gear", name = "low_price")
-    @Check(constraints = "low_price >= 0.00")
-    private BigDecimal lowPrice;
 
     @Column(table = "gear", name = "image_url")
     private String imageUrl;
@@ -70,6 +56,9 @@ public class Gear implements Serializable {
 
     @Column(table = "gear", name = "manufacturer", nullable = false)
     private String manufacturer;
+
+    @Column(table = "gear", name = "features")
+    private String features;
 
     protected Gear() { }
 
@@ -121,30 +110,6 @@ public class Gear implements Serializable {
         this.amazonLink = amazonLink;
     }
 
-    public String getEbayLink() {
-        return ebayLink;
-    }
-
-    public void setEbayLink(String ebayLink) {
-        this.ebayLink = ebayLink;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public BigDecimal getLowPrice() {
-        return lowPrice;
-    }
-
-    public void setLowPrice(BigDecimal lowPrice) {
-        this.lowPrice = lowPrice;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -165,6 +130,10 @@ public class Gear implements Serializable {
         this.manufacturer = manufacturer;
     }
 
+    public String getFeatures() { return features; }
+
+    public void setFeatures(String features) { this.features = features; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -173,7 +142,6 @@ public class Gear implements Serializable {
         Gear gear = (Gear) o;
 
         if (!getName().equals(gear.getName())) return false;
-        if (!getDescription().equals(gear.getDescription())) return false;
         if (!getManufacturer().equals(gear.getManufacturer())) return false;
         return getGearType().equals(gear.getGearType());
     }
@@ -181,7 +149,6 @@ public class Gear implements Serializable {
     @Override
     public int hashCode() {
         int result = getName().hashCode();
-        result = 31 * result + getDescription().hashCode();
         result = 31 * result + getManufacturer().hashCode();
         result = 31 * result + getGearType().hashCode();
         return result;
@@ -195,9 +162,8 @@ public class Gear implements Serializable {
                 .append("Manufacturer: ").append(this.getManufacturer()).append("\n")
                 .append("Type: ").append(this.getGearType().getName()).append("\n")
                 .append("Amazon Link: ").append(this.getAmazonLink()).append("\n")
-                .append("Ebay Link: ").append(this.getEbayLink()).append("\n")
-                .append("Price: $").append(this.getPrice().toString()).append("\n")
-                .append("Lowest Price: $").append(this.getLowPrice().toString())
+                .append("Thumb URL: ").append(this.getThumbUrl()).append("\n")
+                .append("Image URL: ").append(this.getImageUrl()).append("\n")
                 .toString();
     }
 }

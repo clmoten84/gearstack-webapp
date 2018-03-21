@@ -2,7 +2,6 @@ package io.gearstack.models;
 
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -48,8 +47,8 @@ public class User implements Serializable {
     @Column(table = "user", name = "gear_iq_score", nullable = false)
     private int iq_score;
 
-    @Column(table = "user", name = "about_me")
-    private String aboutMe;
+    @Column(table = "user", name = "bio")
+    private String bio;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,
               fetch = FetchType.LAZY, orphanRemoval = true)
@@ -139,12 +138,12 @@ public class User implements Serializable {
         this.iq_score = iq_score;
     }
 
-    public String getAboutMe() {
-        return aboutMe;
+    public String getBio() {
+        return bio;
     }
 
-    public void setAboutMe(String aboutMe) {
-        this.aboutMe = aboutMe;
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
     public GearStack getCurrentStack() {

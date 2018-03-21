@@ -1,9 +1,6 @@
 package io.gearstack.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity(name = "GearType")
@@ -13,13 +10,24 @@ public class GearType implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(table = "gear_type", name = "name", updatable = false, nullable = false, unique = true)
+    @Column(table = "gear_type", name = "amazon_node_id", updatable = false, nullable = false, unique = true)
+    private Long amazonNodeId;
+
+    @Column(table = "gear_type", name = "cat_name", nullable = false)
     private String name;
 
-    @Column(table = "gear_type", name = "desc")
-    private String description;
+    @OneToOne(mappedBy = "gear_type", fetch = FetchType.LAZY)
+    @JoinColumn(table = "gear_type", name = "parent_node_id", referencedColumnName = "amazon_node_id")
+    private GearType gearType;
+
+    @Column(table = "gear_type", name = "is_leaf_node", nullable = false)
+    private boolean leafNode;
 
     protected GearType() { }
+
+    public Long getAmazonNodeId() { return amazonNodeId; }
+
+    public void setAmazonNodeId(Long amazonNodeId) { this.amazonNodeId = amazonNodeId; }
 
     public String getName() {
         return name;
@@ -29,13 +37,13 @@ public class GearType implements Serializable {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
+    public GearType getGearType() { return gearType; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public void setGearType(GearType gearType) { this.gearType = gearType; }
+
+    public boolean isLeafNode() { return leafNode; }
+
+    public void setLeafNode(boolean leafNode) { this.leafNode = leafNode; }
 
     @Override
     public boolean equals(Object o) {
@@ -44,22 +52,25 @@ public class GearType implements Serializable {
 
         GearType gearType = (GearType) o;
 
+        if (!getAmazonNodeId().equals(gearType.getAmazonNodeId())) return false;
         if (!getName().equals(gearType.getName())) return false;
-        return getDescription().equals(gearType.getDescription());
+        return isLeafNode() == gearType.isLeafNode();
     }
 
     @Override
     public int hashCode() {
         int result = getName().hashCode();
-        result = 31 * result + getDescription().hashCode();
+        result = 31 * result + getAmazonNodeId().hashCode();
+        result = 31 * result + (isLeafNode() ? 1 : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return new StringBuilder("Gear Type:\n")
+                .append("Amazon Node Id: ").append(this.getAmazonNodeId()).append("\n")
                 .append("Name: ").append(this.getName()).append("\n")
-                .append("Description: ").append(this.getDescription())
+                .append("Leaf Node: ").append(this.isLeafNode())
                 .toString();
     }
 }
